@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import { Navigation } from './layout/Navigation';
 import { MainLayout } from './layout/MainLayout';
 import { ProofFooter } from './layout/ProofFooter';
 
 // Pages
+import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { Saved } from './pages/Saved';
 import { Digest } from './pages/Digest';
@@ -13,7 +14,11 @@ import { Proof } from './pages/Proof';
 import { NotFound } from './pages/NotFound';
 import { Button } from './components/Button';
 
-function App() {
+// Inner component to access useLocation hook
+const AppContent = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
   const secondaryPanel = (
     <>
       <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', margin: 0 }}>How this works</h3>
@@ -42,26 +47,29 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingBottom: 'var(--space-5)'
-      }}>
-        <Navigation />
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      paddingBottom: 'var(--space-5)'
+    }}>
+      {!isHomePage && <Navigation />}
 
-        <main style={{
-          flex: 1,
-          width: '100%',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 var(--space-4)'
-        }}>
+      <main style={{
+        flex: 1,
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: isHomePage ? '0' : '0 var(--space-4)'
+      }}>
+        {isHomePage ? (
+          <Routes>
+            <Route path="/" element={<Home />} />
+          </Routes>
+        ) : (
           <MainLayout
             primaryWorkspace={
               <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/saved" element={<Saved />} />
                 <Route path="/digest" element={<Digest />} />
@@ -72,15 +80,25 @@ function App() {
             }
             secondaryPanel={secondaryPanel}
           />
+        )}
 
+        {!isHomePage && (
           <ProofFooter
             uiBuilt={true}
             logicWorking={false}
             testPassed={false}
             deployed={false}
           />
-        </main>
-      </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
