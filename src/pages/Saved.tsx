@@ -4,13 +4,24 @@ import { EmptyState } from '../components/EmptyState';
 import { JobCard } from '../components/JobCard';
 import { jobsData } from '../data/jobs';
 import { useSavedJobs } from '../hooks/useSavedJobs';
+import { useJobStatus } from '../hooks/useJobStatus';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
+import type { JobStatus } from '../types/status';
 
 export const Saved: React.FC = () => {
     const { savedJobIds, toggleSave, isSaved } = useSavedJobs();
+    const { getStatus, updateStatus } = useJobStatus();
+    const { toasts, showToast, removeToast } = useToast();
 
     const savedJobs = useMemo(() => {
         return jobsData.filter(job => savedJobIds.has(job.id));
     }, [savedJobIds]);
+
+    const handleStatusChange = (jobId: string, newStatus: JobStatus) => {
+        updateStatus(jobId, newStatus);
+        showToast(`Status updated: ${newStatus}`);
+    };
 
     return (
         <div>
@@ -32,10 +43,14 @@ export const Saved: React.FC = () => {
                             job={job}
                             isSaved={isSaved(job.id)}
                             onToggleSave={toggleSave}
+                            status={getStatus(job.id)}
+                            onStatusChange={handleStatusChange}
                         />
                     ))}
                 </div>
             )}
+
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 };

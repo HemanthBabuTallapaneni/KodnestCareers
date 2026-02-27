@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import type { Job } from '../types/job';
+import type { JobStatus } from '../types/status';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import { Modal } from './Modal';
 import { ScoreBadge } from './ScoreBadge';
+import { StatusPill } from './StatusPill';
 
 interface JobCardProps {
     job: Job;
     isSaved: boolean;
     onToggleSave: (id: string) => void;
     matchScore?: number;
+    status: JobStatus;
+    onStatusChange: (jobId: string, status: JobStatus) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave, matchScore }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave, matchScore, status, onStatusChange }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const headerRowStyle: React.CSSProperties = {
@@ -55,7 +59,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave, ma
                         <h3 style={titleStyle}>
                             {job.title}
                         </h3>
-                        {matchScore !== undefined ? <ScoreBadge score={matchScore} /> : <Badge variant="filled">{job.source}</Badge>}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <StatusPill status={status} onChange={(s) => onStatusChange(job.id, s)} />
+                            {matchScore !== undefined ? <ScoreBadge score={matchScore} /> : <Badge variant="filled">{job.source}</Badge>}
+                        </div>
                     </div>
                     <div style={compStyle}>{job.company}</div>
                     <div style={metaStyle}>

@@ -3,12 +3,15 @@ import { Input } from './Input';
 import { Select } from './Select';
 import type { JobMode, JobExperience, JobSource } from '../types/job';
 
+import type { JobStatus } from '../types/status';
+
 export interface FilterState {
     keyword: string;
     location: string;
     mode: JobMode | 'All';
     experience: JobExperience | 'All';
     source: JobSource | 'All';
+    status: JobStatus | 'All';
     sort: 'Latest' | 'Match Score' | 'Salary';
 }
 
@@ -79,6 +82,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, setFilters }) => 
                         { value: 'Naukri', label: 'Naukri' },
                         { value: 'Indeed', label: 'Indeed' },
                         { value: 'Wellfound', label: 'Wellfound' },
+                    ]}
+                />
+                <Select
+                    value={filters.status}
+                    onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as JobStatus | 'All' }))}
+                    options={[
+                        { value: 'All', label: 'All Statuses' },
+                        { value: 'Not Applied', label: 'Not Applied' },
+                        { value: 'Applied', label: 'Applied' },
+                        { value: 'Rejected', label: 'Rejected' },
+                        { value: 'Selected', label: 'Selected' },
                     ]}
                 />
                 <Select

@@ -9,10 +9,16 @@ import { useSavedJobs } from '../hooks/useSavedJobs';
 import { usePreferences } from '../hooks/usePreferences';
 import { calculateMatchScore } from '../utils/scoring';
 import { Toggle } from '../components/Toggle';
+import { useJobStatus } from '../hooks/useJobStatus';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/Toast';
+import type { JobStatus } from '../types/status';
 
 export const Dashboard: React.FC = () => {
     const { toggleSave, isSaved } = useSavedJobs();
     const { preferences, hasPreferences } = usePreferences();
+    const { getStatus, updateStatus } = useJobStatus();
+    const { toasts, showToast, removeToast } = useToast();
     const [showOnlyThreshold, setShowOnlyThreshold] = useState(false);
 
     const [filters, setFilters] = useState<FilterState>({
@@ -21,8 +27,14 @@ export const Dashboard: React.FC = () => {
         mode: 'All',
         experience: 'All',
         source: 'All',
+        status: 'All',
         sort: 'Latest',
     });
+
+    const handleStatusChange = (jobId: string, newStatus: JobStatus) => {
+        updateStatus(jobId, newStatus);
+        showToast(`Status updated: ${newStatus}`);
+    };
 
     // Score jobs and memoize
     const scoredJobs = useMemo(() => {
@@ -49,6 +61,9 @@ export const Dashboard: React.FC = () => {
             if (filters.experience !== 'All' && job.experience !== filters.experience) return false;
             if (filters.source !== 'All' && job.source !== filters.source) return false;
 
+            const currentStatus = getStatus(job.id);
+            if (filters.status !== 'All' && currentStatus !== filters.status) return false;
+
             return true;
         }).sort((a, b) => {
             if (filters.sort === 'Match Score') {
@@ -65,7 +80,7 @@ export const Dashboard: React.FC = () => {
             }
             return 0;
         });
-    }, [scoredJobs, filters, showOnlyThreshold, preferences.minMatchScore]);
+    }, [scoredJobs, filters, showOnlyThreshold, preferences.minMatchScore, getStatus]);
 
     return (
         <div>
@@ -107,10 +122,14 @@ export const Dashboard: React.FC = () => {
                             matchScore={job.matchScore}
                             isSaved={isSaved(job.id)}
                             onToggleSave={toggleSave}
+                            status={getStatus(job.id)}
+                            onStatusChange={handleStatusChange}
                         />
                     ))}
                 </div>
             )}
+
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 };

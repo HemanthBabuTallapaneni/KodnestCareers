@@ -3,10 +3,13 @@ import { ContextHeader } from '../layout/ContextHeader';
 import { Button } from '../components/Button';
 import { ScoreBadge } from '../components/ScoreBadge';
 import { useDigest } from '../hooks/useDigest';
+import { useJobStatus } from '../hooks/useJobStatus';
+import { jobsData } from '../data/jobs';
 import type { Job } from '../types/job';
 
 export const Digest: React.FC = () => {
     const { digest, generateDigest, canGenerate, today } = useDigest();
+    const { getRecentUpdates } = useJobStatus();
 
     // Utility: Format the digest nicely as Plain Text for clipboard/emails
     const rawTextDigest = useMemo(() => {
@@ -30,6 +33,40 @@ export const Digest: React.FC = () => {
         });
     };
 
+    const recentUpdates = getRecentUpdates();
+
+    const recentUpdatesSection = recentUpdates.length > 0 && (
+        <div style={{ marginTop: 'var(--space-4)', maxWidth: '640px', margin: 'var(--space-4) auto 0 auto' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: 'var(--space-2)' }}>Recent Status Updates</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                {recentUpdates.map(update => {
+                    const job = jobsData.find(j => j.id === update.jobId);
+                    if (!job) return null;
+                    return (
+                        <div key={job.id} style={{ padding: 'var(--space-3)', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{job.title}</div>
+                                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{job.company}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{
+                                    fontWeight: 600,
+                                    color: update.status === 'Selected' ? '#166534' : update.status === 'Rejected' ? '#991B1B' : '#1E40AF',
+                                    marginBottom: '4px'
+                                }}>
+                                    {update.status}
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                    {new Date(update.updatedAt).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+
     if (!canGenerate) {
         return (
             <div>
@@ -38,6 +75,7 @@ export const Digest: React.FC = () => {
                     <h3 style={{ margin: '0 0 8px 0', fontFamily: 'var(--font-serif)' }}>Action Required</h3>
                     <div style={{ color: 'var(--text-secondary)' }}>Set preferences to generate a personalized digest.</div>
                 </div>
+                {recentUpdatesSection}
             </div>
         );
     }
@@ -52,6 +90,7 @@ export const Digest: React.FC = () => {
                         Demo Mode: Daily 9AM trigger simulated manually.
                     </div>
                 </div>
+                {recentUpdatesSection}
             </div>
         );
     }
@@ -63,6 +102,7 @@ export const Digest: React.FC = () => {
                 <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-secondary)' }}>
                     No matching roles today. Check again tomorrow.
                 </div>
+                {recentUpdatesSection}
             </div>
         );
     }
@@ -135,6 +175,8 @@ export const Digest: React.FC = () => {
                     This digest was generated based on your preferences.
                 </div>
             </div>
+
+            {recentUpdatesSection}
         </div>
     );
 };
