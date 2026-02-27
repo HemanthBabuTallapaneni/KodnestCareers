@@ -1,76 +1,19 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import { TopBar } from './layout/TopBar';
-import { ContextHeader } from './layout/ContextHeader';
+import { Navigation } from './layout/Navigation';
 import { MainLayout } from './layout/MainLayout';
 import { ProofFooter } from './layout/ProofFooter';
+
+// Pages
+import { Dashboard } from './pages/Dashboard';
+import { Saved } from './pages/Saved';
+import { Digest } from './pages/Digest';
+import { Settings } from './pages/Settings';
+import { Proof } from './pages/Proof';
+import { NotFound } from './pages/NotFound';
 import { Button } from './components/Button';
-import { Input } from './components/Input';
-import { Card } from './components/Card';
-import { EmptyState } from './components/EmptyState';
-import { ErrorState } from './components/ErrorState';
 
 function App() {
-  const [showError, setShowError] = useState(false);
-  const [showEmpty, setShowEmpty] = useState(false);
-
-  const primaryWorkspace = (
-    <>
-      <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-        <Button variant="primary" onClick={() => { setShowError(false); setShowEmpty(false); }}>Show Standard</Button>
-        <Button variant="secondary" onClick={() => { setShowError(true); setShowEmpty(false); }}>Show Error</Button>
-        <Button variant="secondary" onClick={() => { setShowEmpty(true); setShowError(false); }}>Show Empty</Button>
-      </div>
-
-      {showError && (
-        <ErrorState
-          title="Failed to Load Notifications"
-          message="We couldn't retrieve the latest job postings from the server."
-          resolution="Check your internet connection and try refreshing the page."
-        />
-      )}
-
-      {showEmpty && (
-        <EmptyState
-          title="No Notifications Yet"
-          description="You haven't set up any job filters yet. Create your first filter to start receiving updates."
-          actionLabel="Create Filter"
-          onAction={() => alert('Action clicked')}
-        />
-      )}
-
-      {!showError && !showEmpty && (
-        <>
-          <Card>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', margin: '0 0 var(--space-2) 0' }}>Job Filter Settings</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
-              Define the criteria for the jobs you want to be notified about. We'll send you an email when a match is found.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              <Input label="Job Title Keywords" placeholder="e.g. Frontend Engineer, React" />
-              <Input label="Location" placeholder="e.g. Remote, New York" />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-2)' }}>
-                <Button variant="primary">Save Settings</Button>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', margin: '0 0 var(--space-2) 0' }}>Recent Matches</h3>
-            <div style={{ padding: 'var(--space-2) 0', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontWeight: 500 }}>Senior Frontend Engineer at TechCorp</div>
-              <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Remote • $140k - $180k</div>
-            </div>
-            <div style={{ padding: 'var(--space-2) 0' }}>
-              <div style={{ fontWeight: 500 }}>React Developer at StartupX</div>
-              <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>New York (Hybrid) • $120k - $150k</div>
-            </div>
-          </Card>
-        </>
-      )}
-    </>
-  );
-
   const secondaryPanel = (
     <>
       <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', margin: 0 }}>How this works</h3>
@@ -99,39 +42,46 @@ function App() {
   );
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      paddingBottom: 'var(--space-5)'
-    }}>
-      <TopBar currentStep={1} totalSteps={3} status="In Progress" />
-
-      <main style={{
-        flex: 1,
-        width: '100%',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 var(--space-4)'
+    <BrowserRouter>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        paddingBottom: 'var(--space-5)'
       }}>
-        <ContextHeader
-          headline="Configure Your Alerts"
-          subtext="Set up precision targeting for your next role. We filter the noise so you only see high-signal opportunities."
-        />
+        <Navigation />
 
-        <MainLayout
-          primaryWorkspace={primaryWorkspace}
-          secondaryPanel={secondaryPanel}
-        />
+        <main style={{
+          flex: 1,
+          width: '100%',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 var(--space-4)'
+        }}>
+          <MainLayout
+            primaryWorkspace={
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/saved" element={<Saved />} />
+                <Route path="/digest" element={<Digest />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/proof" element={<Proof />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            }
+            secondaryPanel={secondaryPanel}
+          />
 
-        <ProofFooter
-          uiBuilt={true}
-          logicWorking={false}
-          testPassed={false}
-          deployed={false}
-        />
-      </main>
-    </div>
+          <ProofFooter
+            uiBuilt={true}
+            logicWorking={false}
+            testPassed={false}
+            deployed={false}
+          />
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 
