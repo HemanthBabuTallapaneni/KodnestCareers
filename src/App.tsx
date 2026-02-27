@@ -12,6 +12,8 @@ import { Digest } from './pages/Digest';
 import { Settings } from './pages/Settings';
 import { Proof } from './pages/Proof';
 import { NotFound } from './pages/NotFound';
+import { TestChecklist } from './pages/TestChecklist';
+import { Ship } from './pages/Ship';
 import { Button } from './components/Button';
 
 // Inner component to access useLocation hook
@@ -75,6 +77,8 @@ const AppContent = () => {
                 <Route path="/digest" element={<Digest />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/proof" element={<Proof />} />
+                <Route path="/jt/07-test" element={<TestChecklist />} />
+                <Route path="/jt/08-ship" element={<Ship />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             }
