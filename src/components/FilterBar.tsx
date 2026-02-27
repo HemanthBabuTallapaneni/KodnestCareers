@@ -9,7 +9,7 @@ export interface FilterState {
     mode: JobMode | 'All';
     experience: JobExperience | 'All';
     source: JobSource | 'All';
-    sort: 'Latest' | 'Salary';
+    sort: 'Latest' | 'Match Score' | 'Salary';
 }
 
 interface FilterBarProps {
@@ -83,9 +83,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, setFilters }) => 
                 />
                 <Select
                     value={filters.sort}
-                    onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value as 'Latest' | 'Salary' }))}
+                    onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value as 'Latest' | 'Match Score' | 'Salary' }))}
                     options={[
                         { value: 'Latest', label: 'Sort by Latest' },
+                        { value: 'Match Score', label: 'Sort by Match Score' },
+                        { value: 'Salary', label: 'Sort by Salary' },
                     ]}
                 />
             </div>

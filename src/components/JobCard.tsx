@@ -4,14 +4,16 @@ import { Card } from './Card';
 import { Badge } from './Badge';
 import { Button } from './Button';
 import { Modal } from './Modal';
+import { ScoreBadge } from './ScoreBadge';
 
 interface JobCardProps {
     job: Job;
     isSaved: boolean;
     onToggleSave: (id: string) => void;
+    matchScore?: number;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave, matchScore }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const headerRowStyle: React.CSSProperties = {
@@ -27,6 +29,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave }) 
         fontSize: '20px',
         margin: 0,
         color: 'var(--text-primary)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-2)'
     };
 
     const compStyle: React.CSSProperties = {
@@ -47,8 +52,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave }) 
             <Card style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 <div>
                     <div style={headerRowStyle}>
-                        <h3 style={titleStyle}>{job.title}</h3>
-                        <Badge variant="filled">{job.source}</Badge>
+                        <h3 style={titleStyle}>
+                            {job.title}
+                        </h3>
+                        {matchScore !== undefined ? <ScoreBadge score={matchScore} /> : <Badge variant="filled">{job.source}</Badge>}
                     </div>
                     <div style={compStyle}>{job.company}</div>
                     <div style={metaStyle}>
@@ -68,6 +75,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave }) 
                         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{job.salaryRange}</div>
                         <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
                             {job.postedDaysAgo === 0 ? 'Posted today' : `${job.postedDaysAgo} days ago`}
+                            {matchScore !== undefined && <span style={{ marginLeft: '8px' }}>• {job.source}</span>}
                         </div>
                     </div>
 
@@ -97,6 +105,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, isSaved, onToggleSave }) 
                             {job.location} • {job.mode} • {job.experience}
                         </div>
                         <div style={{ fontWeight: 600, marginTop: 'var(--space-1)' }}>{job.salaryRange}</div>
+                        {matchScore !== undefined && (
+                            <div style={{ marginTop: 'var(--space-2)' }}>
+                                <ScoreBadge score={matchScore} />
+                            </div>
+                        )}
                     </div>
 
                     <div>
